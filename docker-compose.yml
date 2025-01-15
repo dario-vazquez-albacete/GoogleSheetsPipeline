@@ -1,20 +1,3 @@
-# version: '3.8'
-
-# services:
-#   postgres:
-#     image: postgres:latest
-#     container_name: prefect-postgres
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data
-#     environment:
-#       POSTGRES_USER: ${POSTGRES_USER}
-#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#       POSTGRES_DB: ${POSTGRES_DB}
-#     ports:
-#       - "5434:5432"
-# volumes:
-#   postgres_data:
-
 version: '3.3'
 
 services:
