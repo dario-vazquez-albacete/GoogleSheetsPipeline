@@ -96,9 +96,8 @@ def update_metadata(sheet_name: str, logger: logging.Logger):
 
 
 @flow(name="google-drive-file-tracking-flow")
-def file_tracking():
+def file_tracking(sheet_name: str):
     logger = get_run_logger()
-    sheet_name ='DataIngestionTest'
     current_files = get_tracked_files(logger)
     if current_files.empty:
         update_metadata(sheet_name, logger)
@@ -113,6 +112,6 @@ def file_tracking():
 if __name__ == "__main__":
     import time
     s = time.perf_counter()
-    file_tracking.serve(name="file-tracking-deployment")
+    file_tracking.serve(name="file-tracking-deployment", parameters={"sheet_name":'DataIngestionTest'}, cron="*/5* * * *")
     elapsed = time.perf_counter() - s
     print(f"File tracking pipeline run in {elapsed:0.2f} seconds.")

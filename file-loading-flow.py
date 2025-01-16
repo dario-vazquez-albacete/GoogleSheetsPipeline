@@ -62,6 +62,6 @@ def google_sheets_pipeline():
 if __name__ == "__main__":
     import time
     s = time.perf_counter()
-    google_sheets_pipeline.serve(name="file-loading-deployment")
+    google_sheets_pipeline.serve(name="file-loading-deployment", cron="*/10* * * *")
     elapsed = time.perf_counter() - s
     print(f"Data loading pipeline run in {elapsed:0.2f} seconds.")
