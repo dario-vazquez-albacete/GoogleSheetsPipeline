@@ -16,19 +16,20 @@ graph TD
         C[Google Sheets API]
     end
 
+    subgraph "Docker Compose"
+        G[Packages all components]
+
     subgraph "Prefect containers"
         D[Prefect server node]
         E1[File Tracking deployment]
         E2[File Loading deployment]
     end
+    
+    end
 
     subgraph "Containers"
         F1[Postgres Database]
         F2[Redis Message Broker]
-    end
-
-    subgraph "Docker Compose"
-        G[Orchestrates all components]
     end
 
     A -->|Provides data & metadata| B
