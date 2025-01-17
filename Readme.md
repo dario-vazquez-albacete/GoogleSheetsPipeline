@@ -18,7 +18,10 @@ graph TD
 
     subgraph "Docker Compose"
         G[Packages all components]
-
+    subgraph "Containers"
+        F1[Postgres Database]
+        F2[Redis Message Broker]
+    end
     subgraph "Prefect containers"
         D[Prefect server node]
         E1[File Tracking deployment]
@@ -27,10 +30,7 @@ graph TD
     
     end
 
-    subgraph "Containers"
-        F1[Postgres Database]
-        F2[Redis Message Broker]
-    end
+
 
     A -->|Provides data & metadata| B
     A -->|Provides data & metadata| C
