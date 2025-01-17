@@ -5,6 +5,49 @@
 This ELT pipeline synchronizes data from a given Google Sheets to a Postgres database using Google API on a defined schedule. The main idea of the project is to leverage the features of Python's Prefect orchestration tool and explore the possibilities of cloud infrastructure provided by Google to facilitate data management. It is designed with high data quality and flexibility in mind. The pipeline uses dlt (data load tool) for the actual Extract-Load (EL) steps and runs two independent Prefect flows in separate docker containers mimmicking a distributed system. One flow tracks Google Sheet modifications and keeps track of the required metadata. The second loads data to POstgres only when there has been a modification. A Redis queue is implemented as message broker to pass messages from one flow to the other.
 This is a proof of concept pipeline which scales nicely due to its distributed nature. However in a real-world scenario, Prefect deployments in a dynamic infrastructure such as docker containers should take place in worker machines or in a kubernetes cluster. Since the pipeline is packed into a docker-compose.yml file it is not possible to deploy worker machines inside containers themsevles. But it would require minimal work to configure the pipeline for that scenario.
 
+```mermaid
+graph TD
+    subgraph "Source"
+        A[Google Sheets]
+    end
+
+    subgraph "Google APIs"
+        B[Google Drive API]
+        C[Google Sheets API]
+    end
+
+    subgraph "Prefect containers"
+        D[Prefect server node]
+        E1[File Tracking deployment]
+        E2[File Loading deployment]
+    end
+
+    subgraph "Containers"
+        F1[Postgres Database]
+        F2[Redis Message Broker]
+    end
+
+    subgraph "Docker Compose"
+        G[Orchestrates all components]
+    end
+
+    A -->|Provides data & metadata| B
+    A -->|Provides data & metadata| C
+
+    B -->|Requests metadata| E1
+    E1 -->|Stores metadata| F1
+    E1 -->|Pushes file ids| F2
+
+    F2 -->|Sends new file notifications| E2
+    E2 -->|Requests Google Sheets data| C
+    E2 -->|Loads sheet data| F1
+
+    D -->|Deploys & manages| E1
+    D -->|Deploys & manages| E2
+
+    F1 -->|Stores all data and metadata| D
+```
+
 ## Project structure
 
 ```
@@ -20,6 +63,7 @@ This is a proof of concept pipeline which scales nicely due to its distributed n
 │       ├── dlt_sources.py
 │       ├── __init__.py
 ```
+
 
 ## Getting Started
 
@@ -37,6 +81,18 @@ Before using the Google API or Google sheets it is necessary to have a google em
 * Add the desired scopes (google.drive.readonly, google.sheets.readonly, etc)
 * Grant the service account google drive and google sheets permissions to read the desired files
 
+### Environment variables
+
+Create a .env files with the following variables
+
+```
+POSTGRES_USER=your_user
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=your_database
+POSTGRES_HOST=prefect-postgres
+REDIS_HOST=prefect-redis
+PREFECT_API_DATABASE_CONNECTION_URL="postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@prefect-postgres:5432/${POSTGRES_DB}"
+```
 
 ### Dependencies
 
